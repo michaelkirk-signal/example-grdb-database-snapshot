@@ -85,11 +85,15 @@ extension MyViewController: TransactionObserver {
     }
 
     func databaseDidCommit(_ db: Database) {
-//        DispatchQueue.main.async {
-//            self.latestSnapshot = try! self.storage.pool.makeSnapshot()
-//            self.updateUI()
-//        }
+        // Option 1: rebuild the snapshot. This seems to be what the documentation
+        // recommends, but it can be quite expensive.
+        // DispatchQueue.main.async {
+        //     self.latestSnapshot = try! self.storage.pool.makeSnapshot()
+        //     self.updateUI()
+        // }
 
+        // Option 2: Update the snapshot to the latest transaction. This is much
+        // faster.
         DispatchQueue.main.async {
             try! self.latestSnapshot.read { db in
                 try db.commit()
