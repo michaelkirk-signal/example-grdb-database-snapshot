@@ -85,8 +85,17 @@ extension MyViewController: TransactionObserver {
     }
 
     func databaseDidCommit(_ db: Database) {
+//        DispatchQueue.main.async {
+//            self.latestSnapshot = try! self.storage.pool.makeSnapshot()
+//            self.updateUI()
+//        }
+
         DispatchQueue.main.async {
-            self.latestSnapshot = try! self.storage.pool.makeSnapshot()
+            try! self.latestSnapshot.read { db in
+                try db.commit()
+                try db.beginTransaction(.deferred)
+                _ = try Row.fetchCursor(db, sql: "SELECT rootpage FROM sqlite_master LIMIT 1").next()
+            }
             self.updateUI()
         }
     }
